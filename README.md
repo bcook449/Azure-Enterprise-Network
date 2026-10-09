@@ -74,3 +74,8 @@ Connectivity testing was performed from the Windows Server:
 
 ```powershell
 Test-NetConnection global.handler.control.monitor.azure.com -Port 443
+TcpTestSucceeded : False
+Further investigation revealed that `snet-servers` was configured as a private subnet with no default outbound access. The server therefore had no path to the Azure Monitor service.
+
+## Resolution
+An Azure NAT Gateway was deployed and associated with `snet-servers` to provide outbound connectivity while allowing `vm-prod-server01` to remain without a public IP address. After configuring the NAT Gateway the connectivity test returned TcpTestSucceeded : True. The Azure Monitor agent was able to download its DCR configuration and Heartbeat began appearing in the Log Analytics Workspace. 

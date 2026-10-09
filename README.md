@@ -74,6 +74,7 @@ Connectivity testing was performed from the Windows Server:
 
 ```powershell
 Test-NetConnection global.handler.control.monitor.azure.com -Port 443
+```
 TcpTestSucceeded : False
 Further investigation revealed that `snet-servers` was configured as a private subnet with no default outbound access. The server therefore had no path to the Azure Monitor service.
 

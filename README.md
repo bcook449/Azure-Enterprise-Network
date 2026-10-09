@@ -55,3 +55,22 @@ The server subnet is protected by `nsg-servers`. Custom NSG rules enforce least-
 | 200 | Deny-VNet-Inbound | VirtualNetwork | 10.10.2.0/24 | Any | Deny |
 
 This configuration allows the application subnet to reach the IIS server over HTTP while preventing it from using RDP to access the server.
+
+## Troubleshooting and Resolution
+
+### Azure Monitor Agent Unable to Retrieve Configuration
+
+After deploying the Azure Monitor Agent (AMA) and associating the Windows Server with a Data Collection Rule (DCR), no heartbeat or Windows event data appeared in the Log Analytics workspace.
+
+Initial validation confirmed that:
+
+- The Azure Monitor Agent extension was successfully provisioned.
+- AMA processes were running on the Windows Server.
+- The VM was associated with the correct Data Collection Rule.
+- A system-assigned managed identity was enabled.
+- The AMA configuration directory did not contain downloaded DCR configuration files.
+
+Connectivity testing was performed from the Windows Server:
+
+```powershell
+Test-NetConnection global.handler.control.monitor.azure.com -Port 443

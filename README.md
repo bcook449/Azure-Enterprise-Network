@@ -80,3 +80,23 @@ Further investigation revealed that `snet-servers` was configured as a private s
 
 ## Resolution
 An Azure NAT Gateway was deployed and associated with `snet-servers` to provide outbound connectivity while allowing `vm-prod-server01` to remain without a public IP address. After configuring the NAT Gateway the connectivity test returned TcpTestSucceeded : True. The Azure Monitor agent was able to download its DCR configuration and Heartbeat began appearing in the Log Analytics Workspace. 
+
+## Validation
+
+Network segmentation was validated from `vm-app-test01` in the application subnet against `vm-prod-server01` in the server subnet.
+
+### HTTP Connectivity
+
+The application VM was able to reach the IIS server over TCP port 80:
+
+```bash
+nc -zv -w 5 10.10.2.4 80
+```
+Connection succeeded
+
+## RDP Segmentation
+The application VM was then tested against TCP port 3389.
+```bash
+nc -zv -w 5 10.10.2.4 3389
+```
+Connection timed out as expected. These tests confirmed that the NSG allowed required application traffic while blocking unauthorized administrative access between the application and server subnets. 

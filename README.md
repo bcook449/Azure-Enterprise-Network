@@ -55,6 +55,26 @@ The server subnet is protected by `nsg-servers`. Custom NSG rules enforce least-
 | 200 | Deny-VNet-Inbound | VirtualNetwork | 10.10.2.0/24 | Any | Deny |
 
 This configuration allows the application subnet to reach the IIS server over HTTP while preventing it from using RDP to access the server.
+### Network Segmentation Validation
+
+The NSG configuration was validated from the application VM to confirm that only required traffic could reach the server subnet.
+
+#### HTTP Allowed
+
+The application VM successfully established a connection to the IIS server over TCP port 80.
+
+![HTTP traffic allowed from application subnet](screenshots/06-app-to-server-http-allowed.png)
+
+IIS connectivity was also validated using `curl`, confirming a successful HTTP response from the Windows Server.
+
+![IIS curl validation](screenshots/07-app-to-server-iis-curl-test.png)
+
+#### RDP Blocked
+
+An RDP connectivity test from the application VM to the Windows Server timed out, confirming that TCP port 3389 was blocked between the application and server subnets.
+
+![RDP traffic blocked from application subnet](screenshots/04-app-to-server-rdp-blocked.png)
+
 
 ## Troubleshooting and Resolution
 

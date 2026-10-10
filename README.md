@@ -7,6 +7,48 @@ The environment uses a segmented Azure Virtual Network with dedicated subnets fo
 
 Azure Monitor Agent and Log Analytics provide centralized monitoring for the Windows Server environment. During implementation, a connectivity issue prevented the monitoring agent from retrieving its Data Collection Rule configuration. Troubleshooting identified that the server subnet was configured as a private subnet with no default outbound access. An Azure NAT Gateway was implemented to provide explicit outbound connectivity, allowing the agent to communicate with Azure Monitor while keeping the server private.
 
+## Architecture
+
+```mermaid
+flowchart TB
+    Internet((Internet / Azure Services))
+
+    subgraph Azure["Microsoft Azure"]
+        NAT["NAT Gateway<br/>Outbound Connectivity"]
+
+        subgraph VNET["vnet-enterprise-prod | 10.10.0.0/16"]
+            MGMT["snet-management<br/>10.10.1.0/24"]
+
+            subgraph SERVERS["snet-servers | 10.10.2.0/24"]
+                NSG["nsg-servers"]
+                WIN["vm-prod-server01<br/>10.10.2.4<br/>Windows Server 2022 + IIS"]
+            end
+
+            subgraph APPS["snet-apps | 10.10.3.0/24"]
+                LINUX["vm-app-test01<br/>10.10.3.4<br/>Ubuntu"]
+            end
+
+            BASTION["AzureBastionSubnet<br/>10.10.4.0/26"]
+        end
+
+        AMA["Azure Monitor Agent"]
+        LAW["Log Analytics Workspace<br/>law-enterprise-prod"]
+    end
+
+    MGMT -->|"RDP 3389 Allowed"| WIN
+    BASTION -->|"RDP 3389 Allowed"| WIN
+
+    LINUX -->|"HTTP 80 Allowed"| WIN
+    LINUX -.->|"RDP 3389 Blocked"| WIN
+
+    NSG --- WIN
+
+    WIN --> AMA
+    AMA -->|"HTTPS 443"| NAT
+    NAT --> Internet
+    AMA --> LAW
+```
+
 ## Technologies Used
 
 - Microsoft Azure
